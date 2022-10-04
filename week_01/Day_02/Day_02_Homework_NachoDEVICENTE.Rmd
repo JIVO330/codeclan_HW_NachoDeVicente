@@ -1,0 +1,179 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+
+
+Question 1.
+
+Load in the dataset and have a look at it. What are the dimensions, variable types, variable names, etc.?
+
+#Error with Tidyverse.Error in library(Tidyverse) : there is no package called ‘Tidyverse’
+
+```{r}
+library(Tidyverse)
+library(CodeClanData)
+drinks_content
+```
+
+
+```{r}
+dim(drinks_content)
+```
+
+```{r}
+names(drinks_content)
+```
+
+
+
+```{r}
+nrow(drinks_content)
+```
+
+```{r}
+ncol(drinks_content)
+```
+
+```{r}
+head(drinks_content)
+```
+```{r}
+tail(drinks_content)
+```
+```{r}
+glimpse(drinks_content)
+```
+# separate in a TXT document
+
+```{r}
+view(drinks_content)
+
+```
+
+#variables type
+```{r}
+str(drinks_content)
+```
+```{r}
+library(skimr)
+skim(drinks_content)
+```
+
+```{r}
+summary(drinks_content)
+```
+
+
+
+
+
+
+Question 2.
+
+Let’s first investigate the calories of different drinks. Select the variables Beverage_category, Beverage, Beverage prep and Calories from your data. Since we are interested in the calorie content, check if there are any NA values in the data, and drop them if there are.
+
+
+
+```{r}
+select(drinks_content,c("Beverage_category","Beverage","Beverage_prep", "Calories"))
+```
+ N/A data
+ Errror:```{r}
+filter(drinks_content,"Beverage_category" == 0)---Error in as.ts(x) : object 'drinks_content' not found
+
+
+
+```{r}
+mutate(drinks_content,c("Beverage_category","Beverage","Beverage_prep", "Calories")
+       = is.na (c(Beverage_category","Beverage","Beverage_prep","Calories)))
+```
+
+
+
+
+
+
+Question 3.
+
+Create a new variable (column) called calorie_diff, which stores the difference between 135 calories (135 calories = 10 cubes of sugar!) and the calories in each drink. (hint: you’ll want to subtract 135 from the calories to see which drink have more or less than 10 cups of sugar).
+
+# Error in mutate(drinks_content, calorie_diff = calories - 135) : 
+  could not find function "mutate". When I back to work at home I had problems with Tidyverse
+
+
+```{r}
+mutate(drinks_content,calorie_diff = Calories - 135)
+```
+
+
+Question 4.
+
+Summarise the mean number of calories in each beverage_category. Which 3 category of drinks have the most calories? Which 3 drinks have the least? Write a small summary of your findings.
+
+
+
+```{r}
+select(drinks_content, Beverage)
+```
+#How obtain names inside Beverage?
+```{r}
+names(Beverage)
+```
+```{r}
+filter(drinks_content,Beverage == "Brewed Coffe")
+```
+Why I dont see as a table?
+
+
+```{r}
+beverage_category <- group_by(drinks_content,Beverage_category)
+mean(Coffe)
+
+
+
+```
+I have to be read better !!!
+```{r}
+summarise(beverage_category)
+```
+
+
+
+Question 5.
+
+Let’s look at this a different way. What is the average number of calories in each Beverage_prep type?
+
+
+
+Question 6.
+
+Which Beverage_prep type contains more than the average calories of all drinks?
+Hint
+
+
+Question 7.
+
+Which is the best type of coffee drink (and by ‘drink’ we mean the combination of Beverage_category, Beverage and Beverage_prep) to get if you’re worried about consuming too many calories?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
