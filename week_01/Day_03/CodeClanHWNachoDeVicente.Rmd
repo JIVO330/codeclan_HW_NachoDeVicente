@@ -1,0 +1,143 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+Sorry, I was stuck in the first question , I was not able to read the data because I didn't read properly the notes and my errors messeges !!!I lost nearly two hours because I forgot to call the read_csv 
+
+Question 1.
+
+After you’ve read in the data and assigned it to a variable with a useful name, investigate it. Write down some ideas for what you could do to further investigate/clean this data using what you’ve learned today (no need to code it though, just jot down thoughts and ideas). Feel free to also write down any general thoughts you get looking at the data - this task is just to get you thinking about data and data cleaning/prepping.
+
+```{r}
+library(tidyverse)
+```
+I can not open the file at my desktop folder
+```{r}
+movie_HW_data <-read_csv("C:/Users/aecio/Desktop/CodeClan/codeclan_HW_NachoDeVicente/codeclan_HW_NachoDeVicente/week_01/Day_03/archive/tmdb_500_credits.csv")
+```
+Try to change to Downloads
+```{r}
+movie_HW_data <-read_csv("Downloads/archive/tmdb_500_credits.csv")
+```
+#Change working directory
+
+```{r}
+setwd("C:/Users/aecio/Desktop/") 
+movie_HW_data <-read_csv("Day_03/archive/tmdb_5000_movies.csv")
+```
+I don't see my error
+
+```{r}
+movie_HW_data <-read_csv("C:/Users/aecio/Desktop/CodeClan/codeclan_HW_NachoDeVicente/codeclan_HW_NachoDeVicente/week_01/Day_03/archive/tmdb_500_credits.csv")
+
+```
+
+
+
+```{r}
+
+
+read_csv("archive/tmdb_5000_movies.csv")
+movie_HW_data <- read_csv("archive/tmdb_5000_movies.csv", skip )
+
+
+
+```
+I would change the order of the variables/columns at least, first "id" , second " title", third "genres", four "original_language". I would keep the variable/columns' names.
+
+Look for missing values and see oif there is any reason
+
+
+
+
+
+Question 2.
+
+A lot of interesting stuff in there! But for now, we are only interested in the movies’ titles, their runtime as well as their budget. Select the three columns that contain this information and save them into a new variable called movies_selected. Hint: you will have to make a choice between original_title and title.
+
+
+
+Question 3.
+
+Ok, now take your subsetted data movies_selected, and count the number of missing values in each column.
+
+
+
+Question 4.
+
+There’s not too many NAs, but there are actually quite a few movies with a runtime of 0 in this dataset. Since it’s impossible for a movie to have a runtime of 0, use the function na_if to convert runtimes of length 0 into NAs. Save this into a new variable called movies_runtime. Then count how many missing values there are now in the column runtime.
+
+
+
+Question 5.
+
+Impute the missing values in runtime with the median runtime using coalesce and save this into a new variable called movies_imputed. There should now be no missing values in the column runtime - check this to make sure.
+
+
+
+Question 6.
+
+Finally, use the slice_min and slice_max functions on movies_imputed to get the movies with the 10 shortest and 10 longest runtimes.
+
+
+Question 7.
+
+Using the if_else function, impute anything with a budget below $100 with the median budget. Overwrite your movies_imputed so it contains the new budget values.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
