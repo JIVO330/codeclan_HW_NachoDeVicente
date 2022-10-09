@@ -1,0 +1,209 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+# First step
+
+```{r}
+library(tidyverse)
+read_csv()
+read_csv("data/books.csv")
+books <- read_csv("data/books.csv")
+```
+
+
+```{r}
+books
+```
+# Dimensions
+
+```{r}
+dim(books)
+```
+```{r}
+length(books)
+```
+# Colums
+```{r}
+ncol(books)
+```
+# Rows
+```{r}
+nrow(books)
+```
+# Names
+```{r}
+names(books)
+```
+# improve columns'names
+```{r}
+rename_books <-books %>% 
+ rename("Row_id" = "rowid", "Book_id" = "bookID", "Title" = "title", "Authors"= "authors", "Average_rating" = "average_rating", "Isbn" = "isbn", "Isbn_13" = "isbn13", "Language_code" = "language_code", "Num_pages" = "num_pages", "Ratings_count" = "ratings_count", "Text_reviews_count" = "text_reviews_count","Publication_date" = "publication_date", "Publisher" = "publisher")
+ names(rename_books)
+```
+# After check the columns, I think  there should be another variables like Age,Category and Synopsis. In order to improve collection. 
+
+```{r}
+rename_books
+```
+# Personally, I feel more confortable to have the first letter of the variable in Capital or using PascalCase.However, in order to use the best coding practice I will use snake_case and change again the variables names.
+```{r}
+rename_books2 <- rename_books %>% 
+ rename("row_id" = "Row_id", "book_id" = "Book_id", "title" = "Title", "authors"= "Authors", "average_rating" = "Average_rating", "isbn" = "Isbn", "isbn_13" = "Isbn_13", "language_code" = "Language_code", "num_pages" = "Num_pages", "ratings_count" = "Ratings_count", "text_reviews_count" = "Text_reviews_count","publication_date" = "Publication_date", "publisher" = "Publisher")
+```
+
+```{r}
+rename_books2
+```
+
+Authors by language
+```{r}
+language_data <- select(rename_books2, language_code, authors, title)
+language_data
+```
+# Try filter the books with a different Language_code to "eng","en-US".
+```{r}
+filter(rename_books2, language_code != c("eng", "en-US"))
+```
+
+```{r}
+filter(rename_books2,language_code == c("spa", "fre"))
+```
+
+```{r}
+select(rename_books2,title,authors,language_code)
+```
+
+```{r}
+select(rename_books2,authors,title,average_rating)
+```
+
+```{r}
+select(rename_books2,authors,title,average_rating) %>% 
+  arrange(desc
+          (average_rating))
+```
+
+```{r}
+select(rename_books2, authors, title, average_rating)%>% 
+  filter(average_rating <= 4.30)
+```
+#ISBN,ISBN13. they marks country publishing, publisher, year..... If start by 0,1 publish in English but 84 means Spain
+
+
+```{r}
+select(rename_books2,authors,title,isbn,isbn_13)
+```
+# How to know all the books publish in Spain/Spanish
+```{r}
+spanish_book <- select(rename_books2,authors,title,isbn,isbn_13)%>% 
+  filter(isbn >= 8400000000 & isbn <= 8499999999)
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+# The idea of this tibble was to obtain the publishers which language_code were Spanish ("spa") or French ("fre")
+```{r}
+select(rename_books2,authors,title,language_code,isbn) %>% 
+  filter(language_code == c("spa","fre"))
+```
+# The idea of this tibble was to obtain the publishers which language_code were anyone except English, I satarted wiht these two "eng" and ""en-US", because I saw there was a issue and I was not able to fix it, I stoped here.
+```{r}
+
+select(rename_books2,publisher,language_code) %>% 
+  filter(language_code != c("eng","en-US"))
+```
+
+# Best average by author. It should be the best but I dont know why I get the worst
+```{r}
+
+best_rating <- rename_books2 %>% 
+  group_by(authors) %>% 
+  summarise(mean_average = mean(average_rating)) %>% 
+  arrange(mean_average)
+
+best_rating
+
+```
+Again, I get the worst even if I change few parameters. Anyway do not publish Andrew Hunt
+
+```{r}
+
+best_rating <- rename_books2 %>% 
+  group_by(authors) %>% 
+   summarise(mean_average = mean(average_rating)) %>% 
+    arrange(desc(mean_average)) %>% 
+    tail(5)
+
+best_rating
+
+```
+
+#Text review by Author  
+
+```{r}
+select(rename_books2,authors,title,text_reviews_count,publication_date)
+```
+
+```{r}
+
+best_review <- rename_books2 %>%
+  group_by(authors)%>%
+  summarise(mean_review = mean(text_reviews_count)) %>% 
+  arrange(desc(mean_review))
+  head(5)
+ 
+best_review
+  
+```
+#How joint each author with the means of his/her rating and review
+
+```{r}
+#select(rename_books2,authors,best_review,best_rating)
+
+ perhaps_better_author <- rename_books2 %>% 
+   group_by(desc(authors))%>%
+   summarise(best_rating,best_review) 
+
+
+perhaps_better_author
+
+# Doesnt look like the better author
+
+```
+
+#Create a new table for century. If the books were published in the XX century
+
+```{r}
+last_century_publication <-select(rename_books2, authors, title, publication_date) %>% 
+  mutate(last_century_publication = publication_date <= 12/12/1999)
+#It did not work
+```
+
+```{r}
+select(rename_books2, authors, title, last_century_publication)%>%
+  filter(last_century_publication = TRUE)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
