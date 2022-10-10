@@ -110,11 +110,11 @@ select(rename_books2,authors,title,language_code,isbn) %>%
 # The idea of this tibble was to obtain the publishers which language_code were anyone except English, I satarted wiht these two "eng" and ""en-US", because I saw there was a issue and I was not able to fix it, I stoped here.
 ```{r}
 #Did not work
-select(rename_books2,publisher,language_code) %>% 
-  filter(language_code != c("eng","en-US"))
-
- select(rename_books2,publisher,language_code) %>% 
-  filter(language_code != %in% c("eng","en-US"))
+# select(rename_books2,publisher,language_code) %>% 
+#   filter(language_code != c("eng","en-US"))
+#Did not work
+ # select(rename_books2,publisher,language_code) %>% 
+ #  filter(language_code != %in% c("eng","en-US"))
 
 
 #Correct answer
