@@ -1,0 +1,147 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+
+```
+Q2
+```{r}
+tweets %>%
+  filter(is_quote == FALSE) %>%
+  summarise(total_favorite = sum(favorite_count))
+```
+
+Q3
+```{r}
+# Pick the main words. summarise (mena), group_by, filter
+
+
+```
+
+Q4
+```{r}
+
+# change some variable = mutate
+group_by
+summarise
+arrange   # en arrange desc = (-)
+
+
+```
+
+
+Q5
+```{r}
+tweets %>% 
+  mutate(char_count = str_length(text)) %>% 
+  summarise(av_chars = mena(char_count),
+            av_dtw = mean(display_text_width))
+
+```
+
+Q6
+```{r}
+# its join not combine
+tweets %>%
+  count(tweet_id)
+
+info <- read.csv(.......)
+
+
+
+joined_tweets <- tweets %>% 
+  left_join(info, by = "twet_id")
+
+```
+
+Q7
+```{r}
+codeclan_hastags <- tweets %>% 
+  select (tweet_id , hashtags) %>% 
+  drop_na(hashtags)    # o filter(hastags == FALSE)
+
+
+```
+
+
+
+```{r}
+
+codeclan_hashtags <- tweets %>% 
+  select (tweet_id , hastags) %>% 
+  drop_na(hashtags) %>% 
+  mutate(hashtags = str_to_lower(hashtags))
+
+```
+
+Q8 Extension
+```{r}
+
+codeclan_hashtags %>% 
+  mutate(multiple_hashtags = str_detect(hashtags,"^\\("))   # o filter(str_detect(hashtags,"^\\C"))
+
+```
+Q9
+```{r}
+
+codeclan_tweets %>% 
+  filter(str_detect(str_to_lower(text), "edinburgh"))
+
+#Other way
+edin_pattern <- "(?i)edinburgh"
+mentions <- tweets %>%
+  select(text) %>%
+  str_extract_all(edin_pattern)
+mentions
+
+```
+
+Q10
+```{r}
+
+
+tweets %>%
+  select(text) %>%
+  mutate(text = str_to_lower(text)) %>%
+  mutate(text = str_extract_all(text, "@[a-z0-9_]+")) %>%
+  pull(text) %>%
+  flatten_chr() %>%
+  tibble() %>%
+  rename("users" =".")
+
+
+
+
+
+#Other way
+
+tweets %>%
+  select(text) %>%
+  mutate(user_tweeeted = str_extract_all(text, "@[A-z0-9_]+")) %>%
+  unnest(cols = c(user_tweeeted)) %>%
+  group_by(user_tweeeted) %>%
+  summarise(count = n()) %>%
+  arrange(desc(count))
+
+
+
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
