@@ -1,11 +1,13 @@
---Q1
+/* MVP*/
+
+/*Q1*/
 
 SELECT *
 FROM employees 
 WHERE department = 'Human Resources';
 
 
---Q2
+/*Q2*/
 --last_name,first_name,country in legal department
 SELECT *
 FROM employees 
@@ -23,12 +25,12 @@ SELECT
 */
 
 
---Q3 number employees in Portugal
+/*Q3*/-- number employees in Portugal
 SELECT count(employees)
 FROM  employees 
 WHERE country = 'Portugal'
 
---Q4 number employees either Portugal AND spain
+/*Q4*/ --number employees either Portugal AND spain
 
 SELECT count(employees)
 FROM employees 
@@ -36,13 +38,13 @@ WHERE country IN  ('portugal', 'Spain')
 
 
 
---Q5 pay_details lacking local_account_no
+/*Q5*/ -- pay_details lacking local_account_no
 
 SELECT count(local_account_no)
 FROM pay_details  
 
 
---Q6 NULL of pay_details both local_account_no and iban
+/*Q6*/-- NULL of pay_details both local_account_no and iban
 
 SELECT* 
 FROM pay_details 
@@ -51,7 +53,7 @@ iban IS NULL
 
 --Answer. NO, only with local_account_no
 
---Q7table, first_name, last_name Null last
+/*Q7*/--table, first_name, last_name Null last
 SELECT 
    first_name,
    Last_name
@@ -59,7 +61,7 @@ SELECT
  ORDER BY last_name NULLS LAST 
  
  
- --Q8 first_name,last_name and country ordered by country adn last_name
+ /*Q8*/ --first_name,last_name and country ordered by country adn last_name
  
  SELECT 
  first_name,
@@ -71,7 +73,7 @@ SELECT
  
  
  
- --Q9 hioghest paid top ten
+ /*Q9*/ --highest paid top ten
           
    SELECT
        first_name,
@@ -82,7 +84,7 @@ SELECT
  LIMIT 10;
  
  
- --Q10 lowest paid in Hungary, first_name,second_name
+ /*Q10*/ --lowest paid in Hungary, first_name,second_name
  
  SELECT 
    first_name,
@@ -92,7 +94,7 @@ SELECT
  FROM employees 
  WHERE country = 'Hungary'
  
- --Q11
+ /*Q11*/
  
  
  SELECT
@@ -101,7 +103,7 @@ SELECT
  WHERE first_name LIKE 'F%'
  
  
----Q12  details employees WITH yahoo emails
+/*Q12*/  --details employees WITH yahoo emails
 
  
  SELECT*
@@ -110,14 +112,14 @@ WHERE email LIKE  '%yahoo%'
 
 
 
---Q13 count pension_enrolled employees not base France or Germany
+/*Q13*/ --count pension_enrolled employees not base France or Germany
 
 SELECT count(pension_enrol)
 FROM employees
 WHERE country NOT IN ('France', 'Germany');
 
 
---Q14  maxsalary, engineering fte_hours >=1.0
+/*Q14*/  --maxsalary, engineering fte_hours >=1.0
 
 select
 max(salary)
@@ -126,7 +128,7 @@ WHERE department = 'Engineering' AND
 fte_hours = 1.0;
 
 
---Q15 first_name,last_name,fte_hours >= 1, salary, add new column effective_yearly_salary = fte_hours by salary
+/*Q15*/ first_name,last_name,fte_hours >= 1, salary, add new column effective_yearly_salary = fte_hours by salary
 
 SELECT 
  first_name,
@@ -138,9 +140,9 @@ SELECT
  WHERE fte_hours >= 1.0;
 
 
---EXTENSION
+/*EXTENSION*/
 
- --Q16 badge_label (first_name, '', last_name, department), stored data Is not null
+ /*Q16*/ --badge_label (first_name, '', last_name, department), stored data Is not null
  --" Bob Smith -Legal"
  
  SELECT 
@@ -152,7 +154,7 @@ SELECT
  WHERE (first_name,last_name,department) IS NOT NULL 
 
  
- --Q17  = q16 ADD  start_dat to badge_label
+ /*Q17*/ -- = q16 ADD  start_dat to badge_label
  --Bob Smith -Legal (joined 1998) = start_date is not null 
  
  
@@ -198,8 +200,8 @@ SELECT
  
  
  
- --Q18first_name,last_name salary, new column salay_class with value low <salary 40000, value high salary>= 40000
- NULL salaries!!
+ /*Q18*/    first_name,last_name salary, new column salay_class with value low <salary 40000, value high salary>= 40000
+ --NULL salaries!!
  
  
 SELECT 
@@ -214,7 +216,6 @@ SELECT
 FROM employees
  
  
-
  
  
  
