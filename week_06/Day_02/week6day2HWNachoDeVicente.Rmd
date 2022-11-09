@@ -1,0 +1,69 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+
+library(janitor)
+library(lubridate)
+
+mobile_ph <- read_csv("data/20190928-items.csv") %>% 
+  clean_names()
+
+mobile_ph
+```
+Q2
+
+```{r}
+brand_count <- mobile_ph %>% 
+  group_by(brand) %>% 
+    summarise(brand_count = n())
+
+
+
+brand_count
+
+```
+
+Q3
+```{r}
+samsung_ph <- mobile_ph %>% 
+    filter(brand == "Samsung") %>% 
+  summarise(mean_samsung_rating = mean(rating),
+            st_dev = sd(rating)) %>% 
+  ggplot()+
+  geom_line(aes(x = x, y = sd1), colour = 'red')
+  
+  
+  
+  samsung_ph
+```
+```{r}
+samsung_ph <- mobile_ph %>% 
+    filter(brand == "Samsung") %>% 
+  summarise(mean_samsung_rating = mean(rating),
+            sd = sd(rating))
+
+```
+
+
+
+````{r}
+
+mobile_ph %>% 
+  ggplot(aes(x = samsung_ph))+
+  geom_histogram(aes(y = ..density..), col = "steelblue", bins = 25)+
+  stat_function(
+    fun = dnorm,
+    args = list(
+      mean = samsung_ph$mean,
+      sd = samsung_ph$sd
+    )
+  )
+```
+
+
+
+
