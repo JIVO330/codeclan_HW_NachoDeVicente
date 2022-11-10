@@ -1,0 +1,179 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+Task 1.
+Load the data again, clean_names(), and re-familiarise yourself with it
+```{r}
+library(tidyverse)
+library(janitor)
+library(infer)
+
+
+
+ames<-read_csv("data/ames.csv") %>% clean_names()
+
+names(ames)
+view(ames)
+```
+
+
+Task 2.
+Investigate the distribution of lot_area. Is the distribution roughly normal? If not, what problems do you find?
+
+```{r}
+lot_area_dis <- ames %>% 
+  ggplot(aes(x=lot_area))+
+  geom_histogram()
+  
+lot_area_dis
+#Answer. for me , it looks like that it is, with an area very demanding maybe for the commodities and the housing price.  And low demand in areas were the price is around 170000 ??
+```
+
+Task 3.
+Compute and visualise a bootstrap sampling distribution for the mean(lot_area) of the sold houses.
+
+```{r}
+# I understood that all the houses are sold, so the size should 2930 but is not, there is something wrong and the whole HW is wrong when I leave the size as 2930 without any reps, so I changed
+
+
+bootstrap_sampling_ames <- ames %>% 
+  rep_sample_n(size = 500,replace = TRUE, reps = 1000) %>% 
+  summarise(mean_lot_area = mean(lot_area))
+
+
+bootstrap_sampling_ames
+```
+```{r}
+bootstrap_sampling_ames %>% 
+  ggplot(aes(x = mean_lot_area))+
+  geom_histogram(col = 'white', fill = 'steel blue', alpha = 1)
+```
+
+Task 4.
+Use your bootstrap distribution to calculate a 95% CI for mean(lot_area), and visualise it on the distribution
+
+```{r}
+ci_95 <-bootstrap_sampling_ames %>% 
+  summarise(mean = mean(mean_lot_area),
+            lower_bound = quantile(mean_lot_area, probs = 0.025),
+            upper_bound = quantile(mean_lot_area, probs = 0.975))
+  
+  
+   ci_95      #mean   lower_bound upper_bound
+             #10149.56	9567.744	10955.98	
+```
+```{r}
+
+
+infer_sampling_ames <- ames %>% 
+  specify(response = lot_area) %>% 
+  generate(reps = 1000, type = 'bootstrap') %>% 
+  calculate(stat = 'mean')
+
+infer_sampling_ames
+```
+```{r}
+
+
+infer_ci_95 <- infer_sampling_ames %>% 
+  get_confidence_interval(level = 0.95, type ='percentile')
+
+
+infer_ci_9  #lower_ci  upper_ci
+             #9879.15	10433.61
+```
+
+```{r}
+# visualise
+
+infer_sampling_ames %>% 
+  visualise(bins = 30)+
+  shade_ci(endpoints = infer_ci_95)
+
+```
+Task 5.
+You would like to know the mean(lot_area) of the sold houses with higher confidence. Calculate the 99% CI for this variable (you can re-use your bootstrap distribution from above). Is it narrower or broader than the 95% CI? Does that make sense?
+
+```{r}
+ci_99 <-bootstrap_sampling_ames %>% 
+  summarise(mean = mean(mean_lot_area),
+            lower_bound = quantile(mean_lot_area, probs = 0.005),
+            upper_bound = quantile(mean_lot_area, probs = 0.995))
+  
+  
+   ci_99 
+```
+
+
+Task 6.
+Calculate the point estimate of the mean(lot_area)
+```{r}
+point_est <-  infer_sampling_ames %>% 
+  summarise(mean = mean(stat))
+
+
+point_est
+```
+```{r}
+
+ames %>% 
+  summarise(mean(lot_area))
+```
+2 Extension
+
+
+Task 1.
+Calculate a point estimate and 95% CI for the proportion of houses in the data built before 1920. Does the number of reps you use matter? [Investigate reps from 200 up to 50000, memory of your laptop permitting].
+
+```{r}
+
+h_before_1920 <- ames %>% 
+  filter(year_built <= 1920)
+
+
+
+h_before_1920
+```
+```{r}
+# first Bootstrapping
+
+bootstrap_s_h_before_1920 <- h_before_1920 %>% 
+  rep_sample_n(size = 100, replace = TRUE, reps = 50) %>% 
+  summarise(mean_lot_area = mean(lot_area))
+
+
+bootstrap_s_h_before_1920
+```
+
+```{r}
+ci_95 <- bootstrap_s_h_before_1920 %>% 
+  summarise(mean = mean(mean_lot_area),
+            lower_bound = quantile(mean_lot_area, probs = 0.025),
+            upper_bound = quantile(mean_lot_area, probs = 0.975))
+  
+
+ci_95   
+
+
+#             mean  lower_bound   upper_bound
+#100,  50 : 9452.524	8598.653	10237.03	
+#100, 500 : 9453.733	8562.634	10640.83
+#100,5000 : 9465.193	8508.489	10625.52	
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
