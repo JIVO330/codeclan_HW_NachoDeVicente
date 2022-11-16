@@ -16,7 +16,8 @@ library(ggplot2)
 library(leaflet)
 library(tsibble)
 
-nyc_bikes_df <- nyc_bikes
+
+nyc_bikes_df
 
 ```
 
@@ -41,43 +42,137 @@ This report shows a glimpse of our data set for 2018, although is a sample we th
  We offer a diverse range of options tailored to different necessities.From an Annual Membership with unlimited rides of 45 minutes max to single ride of  30 minutes or a day pass (24 hours and unlimited 30 minutes rides). Obviously the prices are slightly different,and  always there will be an increment of the final fee if the time is overtaken.
 
 
-### How is our service from a sample registered in 2018, what can we learn from it? recommendations/ conclusions
+### Data sample from our registers in 2018. What can we learn from it? 
  
  We have two types of users, subscribers and customers. The first ones are that person that have bought an Annual Membership and the subscribers are the occasional user of our services. According to research, most of the users are subscribers, maybe because more than 4 rides per month makes worth the Annual Membership. From that point, we can guess that subscribers are related with tourist visits and good weather.
  
- In 2018, most of our users and subscribers are male. we should ask why the quantity of women is much less, possible internal factors from our service as the kind of bike(weight,area covered, period of rides, basket or transport kids), external factors, like the traffic, different ways of journey.
+```{r, message = FALSE , warning=FALSE, echo=FALSE}
+nyc_bikes_df %>% 
+  group_by( type) %>% 
+  ggplot(aes(x = type), stat = 'identity', colour = 'steelblue')+
+  geom_bar()+
+  labs(x = "type of contract",
+       y = "Number of users",
+       title =" Our Clients")+
+  theme_bw()
+```
+ 
+ In 2018, most of our users and subscribers were male. we should ask why the quantity of women were much less, possible internal factors from our service as the kind of bike(weight,area covered, period of rides, basket or transport kids), external factors, like the traffic, different ways of journey.
+ 
+```{r ,message = FALSE , warning=FALSE, echo=FALSE}
+nyc_bikes_df %>% 
+ggplot(aes(x = gender, fill = gender))+
+  geom_bar()+
+  labs(x = "Gender",
+       y = "Number of users",
+       title =" Our Clients")+
+  theme_bw()
+```
+ Only, the unknown gender were majority  in the customers section. There are multiple answers but the probably answer was related they are very casual users and it was unclear for them why we ask them for their gender.
  
  
+```{r,message = FALSE , warning=FALSE, echo=FALSE}
+nyc_bikes_df %>% 
+  group_by(gender,type) %>% 
+  ggplot(aes(x = type, fill = gender))+
+  geom_bar()+
+  coord_flip()+
+labs(x = "type of Contract ",
+       y = "Number of users",
+       title =" Our Clients")+
+  theme_bw()
+```
  
+ In general, it is complicate to see and speak about clear patterns in the use of our service per days or per month. There are several fundamental variables outside of the control of the business and they have a clear implication in the behavior of our customers like weather, traffic,accidents or impossible access to the stations or even vandalized.
  
- 
- 
- 
- 
- 
- 
+```{r,message = FALSE , warning=FALSE, echo=FALSE}
+nyc_bikes_df %>%
+  group_by(day) %>%
+  count() %>%
+  summarise(n) %>%
+  ggplot(aes(x= day, y = n))+
+  geom_point()+
+  scale_x_continuous(breaks = 1:31)+
+  theme_bw()+
+  labs(x = "Monthly days",
+       y = "Number of users",
+       title =" Our Clients")
+```
+ In this graphic, we did an assumption that all the days were the same in any month. As we can see that most of the days we have between 120 and 160 users and some specific days we have a bit more or less.
 
- 
-
-
-
+```{r ,message = FALSE , warning=FALSE, echo=FALSE}
+ nyc_bikes_df %>% 
+  group_by(month) %>% 
+  count() %>% 
+  summarise(n) %>% 
+  ggplot(aes(x= month, y = n))+
+  geom_point()+
+  theme_bw()+
+  scale_x_continuous(breaks = 1:12)+
+  labs(x = "Month",
+       y = "Number of users",
+       title =" Our Clients")
+  
+```
+As we mention before the weather, we can see in the year 2018 there were a clear relation between a nice temperature and number of users. We can assume that every year will be similar.
+Same result, different visualization.
+```{r,message = FALSE , warning=FALSE, echo=FALSE}
+nyc_bikes_df %>% 
+  ggplot(aes(x = month))+
+  geom_bar()+
+  scale_x_continuous(breaks = 1:12)+
+ labs(x = "Users by month",
+       title =" Our Clients")+
+  theme_bw()
+```
 
 
 
 ### How are our clients
 
+We have an error in our registers that we keep to emphasize how important to have a clear data set, no only for our records but also in order to improve our service.
+Anyway, the majority of our users are people around 20 -30 years old, either for male or female.
+
+```{r,message = FALSE , warning=FALSE, echo=FALSE}
+nyc_bikes_df %>%
+  ggplot(aes( x= age, fill = gender))+
+  geom_histogram(position = 'dodge', bins = 30)+
+  labs(x = "Users by age",
+       y = "Gender",
+       title =" Our Clients")+
+  theme_bw()
+```
+```{r,message = FALSE , warning=FALSE, echo=FALSE}
+nyc_bikes_df %>%
+ggplot(aes(x = gender, y = age, color = gender)) + 
+  geom_point() + 
+  facet_wrap(~type) + 
+  scale_y_continuous(breaks = c(15,20,30,40,50,60,70,80,90,100,110,120,130,140))+
+    scale_color_manual(values=c('#E69F00', '#56B4E9', 'steelblue'))+
+    labs(x = "Users by gender",
+       y = "Age",
+       title =" Our Clients")+
+  theme_bw()
+```
+Perhaps this graphic is a bit more clear about the relation between type of customer, age and gender, where male ride till 70 and female around 65.
 
 
+### Where are our stations?
+This plot shows that we are covering a big area of  and New York, but is still possible to expand the service to others areas. 
 
-what do we want? attarct customers, user experience. at what time our service is more used?
+```{r}
+leaflet(nyc_bikes_df) %>% 
+  addTiles() %>% 
+  addCircleMarkers(lng =~ start_long,
+             lat =~ start_lat,radius = ~ start_station/5 ,weight = 1)
+```
 
 
+### Recommendations/ Conclusions
 
-
-
-do we want increase the number of bikes for area no more than 30 minutes between stations, growth the number of bikes or area covered
-
-
+Because of fact that with have wrong data (at least,age) from few subscribers, we have to meliorate our register system.
+The number of subscribers in relation with customers is minimum so, at the moment it is not a problem.
+We have to think if we ant to expand the service to other parts of New York/ New Jersey with more stations or prioritize the user experience/ satisfaction and attract more female. 
 
 
 

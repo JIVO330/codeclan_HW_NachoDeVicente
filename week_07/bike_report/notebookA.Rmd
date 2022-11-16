@@ -16,6 +16,8 @@ nyc_bikes_df <- nyc_bikes
 
 nyc_bikes_df
 ```
+
+
 ```{r}
 nyc_bikes_df <- nyc_bikes_df %>% 
   mutate(day = day(start_time),
@@ -85,16 +87,6 @@ nyc_bikes_df %>%
        y = "Number of users",
        title =" Our Clients")
 ```
-
-
-
-
-
-
-
-
-
-
 HIRES BY MONTH
 
 ```{r}
@@ -141,6 +133,7 @@ BY GENDER
 nyc_bikes_df %>% 
   count(gender)
 ```
+
 ```{r}
 
 nyc_bikes_df %>% 
@@ -168,8 +161,8 @@ nyc_bikes_df %>%
   ggplot(aes(x = type, fill = gender))+
   geom_bar()+
   coord_flip()+
-labs(x = "Number of users",
-       y = "type of Contract",
+labs(x = "type of Contract ",
+       y = "Number of users",
        title =" Our Clients")+
   theme_bw()
 
@@ -187,10 +180,11 @@ nyc_bikes_df %>%
   ggplot(aes( x= age, fill = gender))+
   geom_histogram(position = 'dodge', bins = 30)+
   labs(x = "Users by age",
-       y = "type of Contract",
+       y = "Gender",
        title =" Our Clients")+
   theme_bw()
 ```
+
 
 
 ```{r}
@@ -234,7 +228,7 @@ Good weather, tourist visit?
 ```{r}
 nyc_bikes_df %>% 
   ggplot(aes(x = month,y = type, colour = gender)) +
-  geom_point() +
+  geom_line() +
   scale_x_continuous(breaks = 1:12)+
   labs(x = "Users by month",
        title =" Our Clients")+
@@ -264,33 +258,12 @@ nyc_bikes_df %>%
 nyc_bikes_df %>% 
   count(start_station)
 
-
-
-
-
 ```
 
 
 #Hire_time, mean= average, mode quitar los anos mayores de 90. 
 #graph gender-type
 
-
-nyc_bikes_df %>% 
-
-
-
-
-
-Garbage
-```{r}
-
-nyc_bikes_df %>% 
-  geom_line(aes(x= month, y = type, colour = gender))+
-  facet_wrap(~ gender, scales = 'free_y')
-
-
-
-```
 
 
       What is the geographical spread of the start points of bike hires?
@@ -311,7 +284,7 @@ leaflet(nyc_bikes_df) %>%
   #filter(start_station = 3186) %>% 
   addTiles() %>% 
   addCircleMarkers(lng =~ start_long,
-             lat =~ start_lat,radius = ~ start_station ,weight = 1)
+             lat =~ start_lat, radius = ~ start_station/20 ,weight = 1)
 ```
 
 ##which is the busiest station?
@@ -330,10 +303,10 @@ busiest_station
 
 ```{r}
 busiest_start_station <- nyc_bikes_df %>% 
-  select(start_station,start_lat,start_long) %>% 
   group_by(start_station) %>% 
-  count() %>% 
-  arrange(desc(n))
+  mutate(busy_station = n()) %>% 
+  arrange(desc(busy_station)) %>% 
+  distinct(start_station, .keep_all = TRUE)
 
 
 
@@ -346,7 +319,7 @@ busiest_start_station
 
 
 ```{r}
-leaflet() %>% 
+leaflet(busiest_start_station) %>% 
   addTiles() %>% 
   addMarkers(lng =~ start_long  ,
              lat =~ start_lat)
