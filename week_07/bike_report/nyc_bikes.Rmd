@@ -1,0 +1,87 @@
+---
+title: "nyc_bikes a glimpse"
+author: "Juan Ignacio De Vicente"
+date: "2022-11-14"
+output:
+  html_document:
+    df_print: paged
+    code_folding: hide
+---
+
+```{r , message = FALSE , warning=FALSE, echo=FALSE}
+library(tidyverse)
+library(tsibbledata)
+library(lubridate)
+library(ggplot2)
+library(leaflet)
+library(tsibble)
+
+nyc_bikes_df <- nyc_bikes
+
+```
+
+
+Business questions
+In your report, please consider the following questions:
+
+What is the pattern of bike hires over time (e.g. within a year, month, week, or day)?
+Do bike hire patterns differ between bike rider demographics? (e.g. gender, type of trip, age)
+Any other insights?
+          social balance company, how to improve
+
+
+# INTRODUCTION
+
+City Bike is the social company of New York City in charge to develop a more suitable, helthier and eco-friendly transport through the use of bikes. The project started in 2011 but its public appeared was in 2013 and thanks to the amazing and positive reception from the public we have been growing not only in numbers of users but also in bikes and area covered for the service.
+This report shows a glimpse of our data set for 2018, although is a sample we think we are able to get some conclusions  in order to improve the business
+
+
+### What we offer
+
+ We offer a diverse range of options tailored to different necessities.From an Annual Membership with unlimited rides of 45 minutes max to single ride of  30 minutes or a day pass (24 hours and unlimited 30 minutes rides). Obviously the prices are slightly different,and  always there will be an increment of the final fee if the time is overtaken.
+
+
+### How is our service from a sample registered in 2018, what can we learn from it? recommendations/ conclusions
+ 
+ We have two types of users, subscribers and customers. The first ones are that person that have bought an Annual Membership and the subscribers are the occasional user of our services. According to research, most of the users are subscribers, maybe because more than 4 rides per month makes worth the Annual Membership. From that point, we can guess that subscribers are related with tourist visits and good weather.
+ 
+ In 2018, most of our users and subscribers are male. we should ask why the quantity of women is much less, possible internal factors from our service as the kind of bike(weight,area covered, period of rides, basket or transport kids), external factors, like the traffic, different ways of journey.
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+ 
+
+
+
+
+
+
+### How are our clients
+
+
+
+
+what do we want? attarct customers, user experience. at what time our service is more used?
+
+
+
+
+
+do we want increase the number of bikes for area no more than 30 minutes between stations, growth the number of bikes or area covered
+
+
+
+
+
+
+### Question?
+Bikes is for sharing so obviusly there will be extra fees if the time is overtaken
+prices : Day pass 24H 15 dollars, Annual Membership is 15$ monthly or 185!dollars if billed upfront annually and 3.50 dollars for a single ride

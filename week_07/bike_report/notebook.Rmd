@@ -1,0 +1,283 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r}
+library(tidyverse)
+library(tsibbledata)
+library(lubridate)
+library(ggplot2)
+library(leaflet)
+
+nyc_bikes_df <- nyc_bikes
+
+nyc_bikes_df
+```
+```{r}
+nyc_bikes_df <- nyc_bikes_df %>% 
+  mutate(day = day(start_time),
+         month = month(start_time),label = TRUE, abbr = FALSE,
+          year = year(start_time))
+
+nyc_bikes_df <- nyc_bikes_df %>% 
+  mutate(age = (year - birth_year))
+
+
+view(nyc_bikes_df)
+```
+
+
+```{r}
+#durationtravel
+nyc_bikes_df <- nyc_bikes_df %>% 
+  mutate(duration_bike = as.duration(start_time - stop_time))
+
+nyc_bikes_df 
+  
+```
+
+
+
+
+
+        ### PATTERN BIKES HIRES
+
+```{r}
+nyc_bikes_df
+```
+HIRES BY DAY
+```{r}
+nyc_bikes_df %>% 
+  group_by(day) %>% 
+  count() %>% 
+  summarise(n)
+```
+
+```{r}
+nyc_bikes_df %>% 
+  group_by(day) %>% 
+  count() %>% 
+  summarise(n) %>% 
+  ggplot(aes(x= day, y = n))+
+  geom_point()+
+  scale_x_continuous(breaks = 1:31)+
+  theme_bw()+
+  labs(x = "Monthly days",
+       y = "Number of users",
+       title =" Our Clients")
+  
+```
+HIRES BY MONTH
+
+```{r}
+nyc_bikes <- nyc_bikes_df %>% 
+  mutate(month = month(start_time, label = TRUE, abbr = FALSE))
+```
+
+```{r}
+nyc_bikes_df %>% 
+  group_by(month) %>% 
+  count() %>% 
+  summarise(n) %>% 
+  ggplot(aes(x= month, y = n))+
+  geom_point()+
+  theme_bw()+
+  scale_x_continuous(breaks = 1:12)
+```
+
+### PATTERN RIDER
+
+BY TYPE CLIENT
+
+```{r}
+nyc_bikes_df %>% 
+  group_by(type) %>% 
+  count()
+```
+
+
+```{r}
+nyc_bikes_df %>% 
+  group_by( type) %>% 
+  ggplot(aes(x = type), stat = 'identity', colour = 'steelblue')+
+  geom_bar()+
+  labs(x = "type of contract",
+       y = "Number of users",
+       title =" Our Clients")+
+  theme_bw()
+
+```
+We level of subscriber is higher than our casual customer
+BY GENDER
+```{r}
+nyc_bikes_df %>% 
+  count(gender)
+```
+```{r}
+
+nyc_bikes_df %>% 
+ggplot(aes(x = gender, fill = gender))+
+  geom_bar()+
+  labs(x = "Gender",
+       y = "Number of users",
+       title =" Our Clients")+
+  theme_bw()
+```
+RIDER-TYPE
+
+```{r}
+
+nyc_bikes_df %>% 
+  group_by(gender,type) %>% 
+  count()
+
+```
+
+```{r}
+
+nyc_bikes_df %>% 
+  group_by(gender,type) %>% 
+  ggplot(aes(x = type, fill = gender))+
+  geom_bar()+
+  coord_flip()+
+labs(x = "Number of users",
+       y = "type of Contract",
+       title =" Our Clients")+
+  theme_bw()
+
+```
+AGE
+
+```{r}
+nyc_bikes_df %>% 
+  count(age <= 90)
+```
+
+
+```{r}
+nyc_bikes_df %>%
+  ggplot(aes( x= age, fill = gender))+
+  geom_histogram(position = 'dodge', bins = 30)+
+  labs(x = "Users by age",
+       y = "type of Contract",
+       title =" Our Clients")+
+  theme_bw()
+```
+
+
+```{r}
+nyc_bikes_df %>%
+ggplot(aes(x = gender, y = age, color = gender)) + 
+  geom_point() + 
+  facet_wrap(~type) + 
+  scale_y_continuous(breaks = c(15,20,30,40,50,60,70,80,90,100,110,120,130,140))+
+    scale_color_manual(values=c('#E69F00', '#56B4E9', 'steelblue'))+
+    labs(x = "Users by gender",
+       y = "Age",
+       title =" Our Clients")+
+  theme_bw()
+```
+Why We have no real data from two subscribers?they said they have more than 130 years-old(we should improve our register system) it is interesting that we have subscribers  dont share gender, feel confortable?, it is a problem during register?
+
+
+###Busiest months
+
+
+```{r}
+nyc_bikes_df %>% 
+  count(month)
+
+#geom_line to show the evolution using the service
+#august is more used
+```
+
+```{r}
+nyc_bikes_df %>% 
+  ggplot(aes(x = month))+
+  geom_bar()+
+  scale_x_continuous(breaks = 1:12)+
+ labs(x = "Users by month",
+       title =" Our Clients")+
+  theme_bw()
+```
+Good weather, tourist visit?
+
+
+```{r}
+nyc_bikes_df %>% 
+  ggplot(aes(x = month,y = type, colour = gender)) +
+  geom_point() +
+  scale_x_continuous(breaks = 1:12)+
+  labs(x = "Users by month",
+       title =" Our Clients")+
+  theme_bw()
+#+
+  #scale_x_continuous(breaks = 1:13)
+  
+```
+
+###DURATION
+```{r}
+nyc_bikes_df %>% 
+  summarise(average_duration_bike = mean(duration_bike))
+```
+
+
+
+
+#### BUSY STATIONS TO PICK UP AND LEAVE BIKES
+
+```{r}
+nyc_bikes_df %>% 
+   arrange(start_station)%>% 
+
+   
+
+nyc_bikes_df %>% 
+  count(start_station)
+
+
+
+
+
+```
+
+
+#Hire_time, mean= average, mode quitar los anos mayores de 90. 
+#graph gender-type
+
+
+nyc_bikes_df %>% 
+
+
+
+
+
+Garbage
+```{r}
+
+nyc_bikes_df %>% 
+  geom_line(aes(x= month, y = type, colour = gender))+
+  facet_wrap(~ gender, scales = 'free_y')
+
+
+
+```
+
+
+      What is the geographical spread of the start points of bike hires?
+
+
+How do you take a sample?
+
+```{r}
+leaflet(nyc_bikes_df) %>% 
+  addTiles() %>% 
+  addMarkers(lng =~ start_lat ,
+             lat =~start_long )
+  
+```
+
+

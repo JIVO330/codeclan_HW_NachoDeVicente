@@ -1,0 +1,131 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{lmodern}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same} % disable monospaced font for URLs
+\hypersetup{
+  pdftitle={nyc\_bikes a glimpse},
+  pdfauthor={Juan Ignacio De Vicente},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{nyc\_bikes a glimpse}
+\author{Juan Ignacio De Vicente}
+\date{2022-11-14}
+
+\begin{document}
+\maketitle
+
+Business questions In your report, please consider the following
+questions:
+
+What is the pattern of bike hires over time (e.g.~within a year, month,
+week, or day)? Do bike hire patterns differ between bike rider
+demographics? (e.g.~gender, type of trip, age) Any other insights?
+social balance company, how to improve
+
+\hypertarget{introduction}{%
+\section{INTRODUCTION}\label{introduction}}
+
+City Bike is the social company of New York City in charge to develop a
+more suitable, helthier and eco-friendly transport through the use of
+bikes. The project started in 2011 but its public appeared was in 2013
+and thanks to the amazing and positive reception from the public we have
+been growing not only in numbers of users but also in bikes and area
+covered for the service. This report shows a glimpse of our data set for
+2018, although is a sample we think we are able to get some conclusions
+in order to improve the business
+
+\hypertarget{what-we-offer}{%
+\subsubsection{What we offer}\label{what-we-offer}}
+
+we offer a diverse range of options tailored to different
+necessities.From an Annual Membership with unlimited rides of 45 minutes
+max to single ride of 30 minutes or a day pass (24 hours and unlimited
+30 minutes rides). Obviously the prices are slightly different,and
+always there will be an increment of the final fee if the time is
+overtaken.
+
+\hypertarget{how-is-our-service-from-a-sample-registered-in-2018-what-can-we-learn-from-it-recommendations-conclusions}{%
+\subsubsection{How is our service from a sample registered in 2018, what
+can we learn from it? recommendations/
+conclusions}\label{how-is-our-service-from-a-sample-registered-in-2018-what-can-we-learn-from-it-recommendations-conclusions}}
+
+Dates shows that most of our users and subscribers are male. we should
+ask why the quantity of women is much less, possible internal factors
+from our service as the kind of bike(weight, color, area covered, basket
+or transport kids), external factors, like the traffic, different ways
+of journey.
+
+\hypertarget{how-are-our-clients}{%
+\subsubsection{How are our clients}\label{how-are-our-clients}}
+
+what do we want? attarct customers, user experience. at what time our
+service is more used?
+
+do we want increase the number of bikes for area no more than 30 minutes
+between stations, growth the number of bikes or area covered
+
+\hypertarget{question}{%
+\subsubsection{Question?}\label{question}}
+
+Bikes is for sharing so obviusly there will be extra fees if the time is
+overtaken prices : Day pass 24H 15 dollars, Annual Membership is 15\$
+monthly or 185!dollars if billed upfront annually and 3.50 dollars for a
+single ride
+
+\end{document}
