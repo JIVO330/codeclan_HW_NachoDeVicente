@@ -15,7 +15,14 @@ library(lubridate)
 library(ggplot2)
 library(leaflet)
 library(tsibble)
+nyc_bikes_df <- nyc_bikes
+nyc_bikes_df <- nyc_bikes_df %>% 
+  mutate(day = day(start_time),
+         month = month(start_time),label = TRUE, abbr = FALSE,
+          year = year(start_time))
 
+nyc_bikes_df <- nyc_bikes_df %>% 
+  mutate(age = (year - birth_year))
 
 nyc_bikes_df
 
