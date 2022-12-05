@@ -1,0 +1,136 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+Simple linear regression homework
+
+ventually want to run a simple linear regression using actual_length as the dependent variable, and estimated_length as the independent variable.
+
+
+```{r}
+library(tidyverse)
+library(janitor)
+library(ggplot2)
+library(ggfortify)
+library(modelr)
+library(broom)
+library(infer)
+
+project <- read_csv('data/project_management.csv')
+
+project # as tibble
+class(project)
+```
+```{r}
+#convert to dataframe
+project <- as.data.frame(project)
+
+class(project)
+```
+
+    Plot Data. estimated_length ( independent variable _X_)- actual_length (dependent variable _Y_)
+## assumptions after plot: Meaning of `outliner`? / Positive correlation
+
+```{r}
+project %>%
+  ggplot(aes(x = estimated_length, y = actual_length)) +
+  geom_point()
+```
+    
+    Correlation coefficient and interpret value
+
+```{r}
+project %>% 
+  summarise(cor(estimated_length,actual_length))
+```
+Interpretation. The previous plot suggested a positive correlation between the two variables.The correlation coefficient not only indicate that this correlation is positive but also by its magnitude is `very strong`. So the correlation is very strong.
+
+    Linear regression..
+
+actual_length (dependent variable _y_),estimated_length (independent variable _X_)
+Note: linear_regression2 was a `practice` about altered the X -Y  variable
+
+```{r}
+linear_regression <- lm(formula = actual_length ~ estimated_length, data = project)
+
+summary(linear_regression)
+```
+
+  Interpretation. 
+
+Previous plot indicates that if the independent variable is the estimated_length there is a strong correlation. The R-squared coefficient is close to 1 than to 0. So, in my opinion, the regression model indicate that the previous observation about the relationship between variables is correct.
+In terms of slope, 1 unit of increase in the  estimated_length (independent variable) changes the actual_length (dependent variable) by 1.22 units. Question, if the ideal relation is 1 : 1, is better 0.78 or 1.22?
+
+
+    p-value
+
+```{r}
+tidy(linear_regression)
+```
+```{r}
+lr_tidy <- tidy(linear_regression) %>% 
+  clean_names()
+lr_tidy
+```
+
+```{r}
+lr_glance <- glance(linear_regression) %>% clean_names()
+
+lr_glance
+```
+
+For interpret p-value I have to do a diagnosis plot
+
+```{r}
+autoplot(linear_regression)
+```
+Plots:
+Residuals-Fitted,shows a deviation of -2.5 from 0,
+Normal Q-Q , the points are in the line - except one `outliner`- so is a normal distribution. The plot is fine,  
+Scale-location, looks fine because is over x axis(positive)
+Residuals vs Leverage should be around 0 but the `outliner` make a deviation ?
+
+
+
+2 Extension - Residuals vs Leverage
+
+
+```{r}
+project %>% 
+  ggplot(aes(x = estimated_length, y = actual_length))+
+  geom_text(aes(label = 1:nrow(project)))
+```
+The only `outlier` is number 5 (22,38.5)
+Influential: 24-30,35,34,43,48,9,36,2
+No-Influential : 13,18,22,23,21,25,37,28,0,44,47,31,36,15,29,1,34,33,16,26,28,46,3,27,7,4,38
+
+Cook's distance
+
+
+```{r}
+plot(linear_regression)
+```
+
+```{r}
+par(mfrow = c(2,2))+
+  plot(linear_regression)
+```
+
+At the normal Q-Q all the numbers are in line so my assumption was wrong, also with Cook's distance only number 5 is out.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
