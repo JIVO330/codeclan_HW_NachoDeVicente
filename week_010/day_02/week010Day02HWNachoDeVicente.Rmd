@@ -1,0 +1,209 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(janitor)
+library(fastDummies)
+library(GGally)
+library(ggfortify)
+library(mosaic)
+library(mosaicData)
+library(modelr)
+library(broom)
+library(infer)
+
+```
+
+1 MVP
+
+Load the housing_prices.csv data set and undertake an initial exploration of the data. You will find details on the data set on the relevant Kaggle page
+
+```{r}
+hp <- read_csv('data/housing_prices.csv')
+hp
+```
+
+```{r}
+summary(hp)
+```
+
+We expect the total_rooms of houses to be strongly correlated with total_bedrooms. Use ggpairs() to investigate correlations between these two variables.
+
+```{r ,message = FALSE, warning = FALSE}
+corrplothp<- ggpairs(hp)+ theme_grey()
+
+
+# save for better look
+png('hp.png', height=1000, width=1000)
+print(corrplothp)
+dev.off()
+
+corrplothp
+```
+total_rooms (y) correlated with total_bedrooms(x) but no make sense no all bedrooms are rooms, so the independent should be total_rooms
+
+```{r}
+hp %>% 
+  ggplot(aes(total_rooms, y = total_bedrooms))+
+  geom_point()+
+   geom_smooth(method = "lm", se = FALSE)
+  
+
+```
+```{r}
+hp %>% 
+  ggplot(aes(total_bedrooms, y = total_rooms))+
+  geom_point()+
+   geom_smooth(method = "lm", se = FALSE)
+```
+
+
+So, we do find significant correlations. Let’s drop total_bedrooms from the dataset, and use only total_rooms going forward.
+```{r}
+hp_nobedroom <- hp %>% 
+  select(-total_bedrooms)
+
+hp_nobedroom
+```
+
+We are interested in developing a regression model for the median_house_value of a house in terms of the possible predictor variables in the dataset.
+Use ggpairs() to investigate correlations between median_house_value and the predictors (this may take a while to run, don’t worry, make coffee or something).
+
+```{r, message = FALSE, warning = FALSE}
+corrplothouse_val<- ggpairs(hp_nobedroom)+ theme_grey()
+
+png('corrplothouse_val.png', height=1000, width=1000)
+print(corrplothp)
+dev.off()
+
+
+
+corrplothouse_val
+```
+
+_median_houses as predictor = x, doesn't work is the dependent variable (y)
+
+_The variable 'ocean_proximity' makes unnecessary the variables longitude, latitude
+
+
+
+
+Perform further ggplot visualisations of any significant correlations you find.
+
+```{r}
+hp_nobedroom %>%
+  ggplot(aes(x = ocean_proximity, y = median_house_value)) +
+  geom_boxplot()
+  
+#The location is a independent variable that makes that median_house_value increase
+```
+
+```{r}
+hp_nobedroom %>%
+  ggplot(aes(x = total_rooms, y = median_house_value)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE)
+
+# The total_rooms is not a strong correlation
+```
+
+
+```{r}
+hp_nobedroom %>%
+  ggplot(aes(x = median_income , y = median_house_value)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE)
+
+# median_income is not a predictor variable when median_house_value is a dependent variable
+```
+
+
+
+
+
+Shortly we may try a regression model to fit the categorical predictor ocean_proximity. Investigate the level of ocean_proximity predictors. How many dummy variables do you expect to get from it?
+
+
+
+
+
+
+
+
+
+
+Start with simple linear regression. Regress median_house_value on median_income and check the regression diagnostics.
+y ~x
+
+```{r}
+hp_nobedroom %>%
+  ggplot(aes(x = median_house_value, y = median_income)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE)
+
+#As the median_house_value increase, the median_income increase
+```
+```{r}
+
+house_income <- lm(median_house_value ~ median_income, data = hp_nobedroom)
+
+autoplot(house_income)
+```
+
+```{r}
+summary(house_income)
+```
+
+  _ The coefficients shows that each time the median_income increase in 39987 currency units the intercept/ median_house_value increase in 45457 currency units.
+
+
+
+
+Add another predictor of your choice. Check your assumptions, diagnostics, and interpret the model.
+
+
+
+
+```{r}
+house_income2 <- lm(median_house_value ~ median_income + ocean_proximity, data = hp_nobedroom)
+
+autoplot(house_income2)
+```
+
+
+
+```{r}
+summary(house_income2)
+```
+
+_ The regression shows that the location is important in how the intercept is increasing, except when is inland.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
