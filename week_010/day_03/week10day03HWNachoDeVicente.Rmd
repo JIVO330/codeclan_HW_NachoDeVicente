@@ -1,0 +1,145 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+```{r}
+library(GGally)
+library(ggfortify)
+library(modelr)
+library(tidyverse)
+
+house_prices <- read_csv('data/kc_house_data.csv')
+
+glimpse(house_prices)
+```
+
+```{r}
+head(house_prices)
+```
+
+```{r}
+summary(house_prices) # just in case there is NA
+```
+I have diced not remove or split the variables.
+
+Question3.
+ # First , check possible predictors
+```{r}
+skimr::skim(house_prices) %>% 
+  view()
+```
+ 
+ #problems with id, removed it
+ 
+```{r}
+house_prices_trim <-  house_prices %>% 
+  select(-c(id,sqft_living15,sqft_lot15,zipcode))
+
+house_prices_trim
+```
+  _ggpairs in white and blank didn't work so I changed condition as.character to try to make a plot in colour
+```{r}
+house_prices_trim <- house_prices_trim %>% 
+  mutate(condition = as.character(condition))
+
+```
+ 
+```{r message=FALSE}
+house_prices_trim %>% 
+  dplyr::select(price, everything()) %>% 
+  ggpairs(aes(colour = condition))
+```
+
+Note> Problems with visualization plot , try to save as image , in case I can see better.
+```{r}
+
+image <- house_prices_trim %>% 
+  dplyr::select(price, everything()) %>% 
+  ggpairs(aes(colour = condition))
+
+png('image.png', height=1000, width=1000)
+print(image)
+dev.off()
+```
+Regression model_4 predictors
+price(y)- dependent variable
+
+```{r}
+mod1 <- lm(price ~ view, dat = house_prices_trim)
+summary(mod1)
+```
+The R2 is 0.15 ( a bit low), so only 15 %  the variance in price of a house is based on view. However, the predictor is highly significant, so we can think in a good model ( strange).
+The residual standard error is 336900, in terms of average error in house price I would say that is not very good.
+
+```{r}
+mod2 <- lm(price ~ floors, dat = house_prices_trim)
+summary(mod2)
+```
+The R2 is 0.06 ( very low), so only 6 %  the variance in price of a house is based on number of floors. However, the predictor is highly significant, so we can think in a good model ( strange).
+The residual standard error is 354800, in terms of average error in house price I would say that is not very good.
+
+```{r}
+mod3 <- lm(price ~ condition, dat = house_prices_trim)
+summary(mod3)
+```
+The R2 is 0.0013 ( very low),condition of the house almost no affect the variance in price of a house . However, the predictor is highly significant, so we can think in a good model ( strange).
+The residual standard error is 366900, in terms of average error in house price I would say that is bad.
+
+
+
+```{r}
+mod4 <- lm(price ~ floors, dat = house_prices_trim)
+summary(mod4)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
