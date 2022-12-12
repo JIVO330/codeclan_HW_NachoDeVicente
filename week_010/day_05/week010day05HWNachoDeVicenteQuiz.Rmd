@@ -1,0 +1,87 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+              
+              QUIZ
+Q1
+I want to predict how well 6 year-olds are going to do in their final school exams. Using the following variables am I likely under-fitting, fitting well or over-fitting? Postcode, gender, reading level, score in maths test, date of birth, family income.
+
+ Answer.
+ There are 6 variables, I think that ' date of birth' is an unnecessary    variable. Its help as a predictor is low and can generate more noise than improve model . Obviously, 'reading level' and  'score in maths test' are the best predictors, some research  point out the importance of location ( school, house) = 'postcode', 'family income' and gender for success during school years.
+ Therefore, I would say that is over-fitting with 'date of birth' and well-fitting without that variable.
+
+Q2
+If I have two models, one with an AIC score of 34,902 and the other with an AIC score of 33,559 which model should I use?
+
+Answer. 
+
+You should use the model with a lower AIC score (33,559) because it is likely to give the best model.
+
+
+
+Q3
+I have two models, the first with: r-squared: 0.44, adjusted r-squared: 0.43. The second with: r-squared: 0.47, adjusted r-squared: 0.41. Which one should I use?
+
+Answer.
+
+Although both models show a small amount - or percentage- 0.44 -44%-, 0.47 -47%- in the relation between an independent variable and a dependent variable according with r-squared, I would suggest that the second one should be slightly better.
+However, the adjusted r - squared suggest that you should use the first one because is slightly better for a positive relationship.
+
+
+
+Q4
+I have a model with the following errors: RMSE error on test set: 10.3, RMSE error on training data: 10.4. Do you think this model is over-fitting?
+
+Answer.
+*
+I would think that the model is well-fitting because  because the RMSE predicted is very close to the actual RMSE of the training data
+
+
+
+Q5
+How does k-fold validation work?
+
+Answer.
+You divide your data in a number('k') folds. In each fold will tested the all the data except that one that is inside that fold. After that, it will be measured the different averages 
+
+
+Q6
+What is a validation set? When do you need one?
+
+Answer.
+
+A set that is not use for training or test a model. You can need one  as measure of accuracy 
+
+
+Q7
+Describe how backwards selection works.
+
+Answer.
+
+
+
+
+
+
+Q8
+Describe how best subset selection works.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

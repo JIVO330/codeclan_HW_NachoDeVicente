@@ -1,0 +1,330 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+Build a multiple linear regression model, `AveragePrice` on avocados.Predictors? (coor)
+Validation techniques (from Wednesday) to evaluated. Explanatory/ predictive model?
+Interpreting the results and write your comments in your script
+
+
+Resume.
+I think I did a bad tidy/ cleaning, My results are poor and I feel I did not choose the correct predictors
+
+
+```{r}
+library(GGally) #visualisation/ggpairs
+library(modelr)
+library(janitor)
+library(lubridate)
+library(tidyverse)
+```
+
+```{r}
+avocado <-  read_csv('data/avocado.csv') %>% clean_names()
+view(avocado)
+
+```
+
+```{r}
+#check the variables  for NA, class..
+#PLU show the size of the avocado, 4046: small,4225:Large,4770: all size.
+#Total_volume != sum(4046,4225,4770)
+#X1 : noise variable
+#date: is not necessary but it can be split in quarters for what?
+
+
+summary(avocado)
+```
+Transforming  variable date
+```{r}
+
+avocado <- avocado %>% 
+  mutate(date = ymd(date),
+         month_enter = month(date, label = TRUE, abbr = FALSE),
+         year_enter = year(date),
+         day_enter = day(date),
+  )
+```
+
+```{r}
+avocado <- avocado %>% 
+  mutate(quarters = case_when(
+    month_enter %in% c('January','February','March')~ "Q1",
+    month_enter %in% c('April','May', 'June') ~ "Q2",
+    month_enter %in% c('July','August','September') ~ "Q3",
+    month_enter %in% c('October', 'November', 'December')~ "Q4",
+  ))
+avocado
+```
+
+Remove variables; X1, date, year_enter,day_enter. Keep month_enter,Might help?, decided no split in dummy variables.
+```{r}
+avocado_trim <- avocado %>% 
+  select(-c(1,2,16,17))
+
+avocado_trim
+```
+
+
+MANUAL MODEL. Start
+
+```{r}
+# ggpairs gave an error with region, I will remove it , plus month_enter and bags 
+ avocado_trim2 <- avocado_trim %>% 
+  select(- c(region,6,7,8,9,month_enter))
+
+avocado_trim2
+```
+
+
+```{r, message=FALSE}
+avocado_trim2 %>% 
+  ggpairs(aes(colour = type, alpha = 0.5))
+
+```
+ The first interpretation of this plot suggest a strong statistical significance between the average price of avocados  with year, any kind of size and total volume.But the correlation is weak even if it is positive or negative.Also, this correlation depends if the origin of the avocado is 'conventional' or 'organic'. If the type is  organic the average price is sensible higher than conventional in any quarter of the year, specially in the third one(July- September).
+ The strong significant relationship and the better correlation is between the total_volume and the avocado sells by size x4046, x4225, x4770 overall in conventional but also in the organic type
+  The negative correlation could be interpreted  as the average_price of avocados decrease as  the total number of avocados available (in the market) increase.
+
+```{r}
+# Only for curiosity as I was not able to do a ggpairs of the all dataset
+model_general <- lm(average_price ~., data = avocado_trim)
+
+summary(model_general)
+```
+  A linear model about the relation of the average_price of avocado with all the variable from data set shows that with a positive correlation are year, region ( no all of them),the organic type and finally, size.
+
+First predictor Average_price- year
+
+```{r}
+model1 <- lm(average_price ~ year, data = avocado_trim2)
+
+model1
+```
+ The formula suggest that the average_price will increase in 0.40 currency points for each point  increase in year.
+```{r}
+summary(model1)
+```
+As it was mentioned before, there is a significant relationship between year and average_price. However, r-square  point out that only a 0.8% in the variance of the average_price is based in year; the Residual standard error is 0.4  on  - I think- to high degrees of freedom, that indicates the average error on predicting the average price is 0.4.
+
+ Plot model1
+```{r}
+par(mfrow = c(2,2))
+
+plot(model1)
+```
+ The Residuals vs Fitted plot looks strange because there is no a well variation (I would say no well sorted). It makes me think in a variation by quarters, the same for the rest plots where the variation is to vertical.
+ By contrast, I would say the the Q-Q plot is correct with a normal distribution.
+
+Another predictor, Average_price - total_volume
+
+```{r}
+model2 <- lm(average_price ~ total_volume, data = avocado_trim2)
+
+summary(model2)
+```
+There is a significant relationship between average_price and total_volume. The r-square  point out that only a 3% in the variance of the average_price is based in volume; the Residual standard error is 0.395  on  - I think- to high degrees of freedom, that indicates the average error on predicting the average price is 0.395.
+
+
+I think that total_volume is a better predictor for the avocado average_price than the year.
+
+```{r}
+par(mfrow = c(2, 2))
+plot(model2)
+```
+I think that the normal Q-Q plot is fine and marks the tendency
+---
+
+
+```{r, message=FALSE}
+avocado_residuals <- avocado_trim2 %>% 
+  add_residuals(model1) %>% 
+  select(-c('average_price','year'))
+
+
+
+avocado_residuals %>% 
+  ggpairs(aes(colour = type, alpha = 0.5))
+```
+All the relations between the predictors and the residuals are negative, that means, if the predictor increase the residual should decrease.
+
+
+```{r}
+# Is it better, with 3?
+
+
+model3 <- lm(average_price ~ total_volume + type, data =  avocado_trim2)
+
+
+summary(model3)
+```
+It looks like that r-square is increasing with the predictors of total_volume and type.
+in model2 (average_price ~ total_volume) is 0.03715, and model3 (average_price ~ total_volume + type) is 0.3819
+
+```{r}
+par(mfrow = c(2, 2))
+plot(model3)
+```
+
+The plots from model3 (average_price ~ total_volume + type) are quite similar to the plot from model2(average_price ~ total_volume).
+
+models.
+model_general (all the predictors) Multiple R-squared:  0.6267
+model1 (average_price ~ year) Multiple R-squared:  0.008686
+model2  (average_price ~ total_volume) Multiple R-squared:  0.03715
+model3  (average_price ~ total_volume + type) Multiple R-squared:  0.3819
+
+Process Anova to decide if the categorical predictor is significant.
+model_general and model3 are the best
+
+
+```{r}
+anova(model_general,model3)
+#Perhaps, I should not do this 
+```
+ If we check the r-squared, model_general has the best score and therefore we should keep it, also, the values of 'Res.Df' and 'RSS' are lower. However, the fact that is not significantly statistician  and the p-value is missing make me uncomfortable, so I would take model3
+
+3 -predictor.
+
+
+```{r, message=FALSE}
+avocado_residuals2 <- avocado_trim2 %>% 
+  add_residuals(model3) %>% 
+  select(-c('average_price','total_volume','type'))
+
+
+avocado_residuals2 %>% 
+  ggpairs()
+```
+```{r}
+model4 <- lm(average_price ~ total_volume + type + year, data = avocado_trim2)
+
+summary(model4)
+```
+   The r-square in the model4  is a slightly higher than model3 but very low from model_general. All the predictors are strongly significant for statistical purposes.
+
+
+Check by Anova if model4 is better than model2
+```{r}
+anova(model2,model4)
+```
+ model4 is significant and it has a low p-value, type and year  are significant.
+ 
+ 
+  Possible interaction between 2 independent variables?
+  
+
+```{r}
+avocado_residuals3 <- avocado_trim2 %>% 
+  add_residuals(model4) %>% 
+  select(-'average_price')
+
+```
+
+```{r}
+coplot(resid ~ total_volume | type, data = avocado_residuals3)
+```
+There is no any relation between type and total_volume.
+
+
+
+```{r}
+coplot(resid ~ total_volume| year, data = avocado_residuals3)
+```
+The plot shows that there is a strong relation between the year and total_volume. So do another plot whit year and residuals
+
+
+```{r}
+avocado_residuals3 %>% 
+  ggplot(aes(x = year, y = resid, color = type))+
+  geom_point()+
+  geom_smooth(method = 'lm', se = FALSE)
+```
+
+
+```{r}
+avocado_residuals3 %>% 
+  ggplot(aes(x = total_volume, y = resid, color = type))+
+  geom_point()+
+  geom_smooth(method = 'lm', se = FALSE)
+```
+
+In the first plot year-residuals the line is around 0, with  light variation. 
+The second plot is a straight line in 0  by the conventional avocado, which I guess can be related with the first plot(ggpairs) where the max peak of cost on average_avocado was by conventional, although the cost of organic were higher.
+
+
+
+  Over_fit the avocado model, I will use avocado_trim, also, average_price.Avocado_trim has the ' region' variable and I would like to see how its working.
+  
+```{r}
+model_overfit <- lm(average_price ~., data = avocado_trim)
+summary(model_overfit)
+```
+```{r}
+model_wellfit <- lm(average_price ~total_volume + type +year+ region, data = avocado_trim )
+summary(model_wellfit)
+```
+  
+
+The r -square is better in the overfit model than in the wellfit model.
+
+```{r}
+model_underfit <- lm(average_price ~ total_volume, data = avocado_trim)
+summary(model_underfit)
+```
+
+```{r}
+AIC(model_overfit)
+```
+```{r}
+AIC(model_wellfit)
+```
+```{r}
+AIC(model_underfit)
+```
+
+The model_overfit  present the lower AIC, so it is a good model. But I am going to check more in-depth.
+
+
+```{r}
+broom::glance(model_overfit) %>%
+   select(r.squared, adj.r.squared, AIC, BIC)
+```
+```{r}
+broom::glance(model_wellfit) %>%
+   select(r.squared, adj.r.squared, AIC, BIC)
+```
+
+```{r}
+broom::glance(model_underfit) %>%
+   select(r.squared, adj.r.squared, AIC, BIC)
+```
+In fact, the model_overfit present the best results. Something is not right
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
