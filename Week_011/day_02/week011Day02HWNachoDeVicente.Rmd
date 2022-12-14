@@ -1,0 +1,205 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+homework
+
+
+```{r}
+library(rpart)
+library(rpart.plot)
+library(tidyverse)
+
+library(tidyverse)
+titanic_set <- read_csv('data/titanic_decision_tree_data.csv')
+
+shuffle_index <- sample(1:nrow(titanic_set))
+
+titanic_set <- titanic_set[shuffle_index, ]
+
+```
+
+
+```{r}
+head(titanic_set)
+```
+
+1.
+```{r}
+titanic_clean <- titanic_set %>%
+  filter(survived %in% c(0,1)) %>%
+# Convert to factor level
+    mutate(sex = as.factor(sex), 
+           age_status = as.factor(if_else(age <= 16, "child", "adult")),
+         class = factor(pclass, levels = c(3,2,1), labels = c("Lower", "Middle", "Upper")), 
+           survived_flag = factor(survived, levels = c(0,1), labels = c("No", "Yes")), 
+           port_embarkation = as.factor(embarked)) %>%
+  select(sex, age_status, class, port_embarkation, sib_sp, parch, survived_flag) %>%
+  na.omit()
+titanic_clean
+```
+2.
+3 plots by sex, age and class.
+
+I choose this 3 variables for my plots because "women/female and kid first.." ,and titanic represented the society from its time so, it should be interested see how was the relationship between the class and death. 
+
+```{r, message=FALSE}
+library(GGally)
+
+ggpairs(titanic_clean %>% 
+        select(sex,everything()))
+```
+by sex females survived more than males, but there were more males than females in total.
+
+```{r, message=FALSE}
+ggpairs(titanic_clean %>% 
+          select(age_status,everything()))
+```
+By age. Unfortunately, more adults than child survived
+
+
+
+```{r, message=FALSE}
+ggpairs(titanic_clean %>% 
+          select(class,everything()))
+```
+
+By Class, the upper class surviced more than the lower and middle clas, more death in lower class. Also its because there  were more lower class than upper. It's interesting that there were more upper than middle but there were more middle deathas than upper.
+
+3. Train-test
+
+```{r}
+n_titanic_clean_data <- nrow(titanic_clean)
+
+# create a test sample index
+test_index_titanic <- sample(1:n_titanic_clean_data, size = n_titanic_clean_data*0.2)
+
+# create test set
+titanic_test  <- slice(titanic_clean, test_index_titanic)
+
+# create training set
+titanic_train <- slice(titanic_clean, - test_index_titanic)
+
+```
+
+#Check train/test
+
+```{r}
+titanic_test %>% 
+  janitor::tabyl(survived_flag)
+```
+
+```{r}
+titanic_train %>% 
+  janitor::tabyl(survived_flag)
+```
+
+
+4.Question. Decision Tree
+
+```{r}
+titanic_fit <- rpart(formula = survived_flag ~.,
+                     data = titanic_train,
+                     method = 'class')
+
+rpart.plot(titanic_fit, yesno = 2,
+           fallen.leaves = TRUE,
+           faclen = 6,
+           digits = 4
+           #,type = 2,
+           #extra = 101
+           )
+```
+5. 
+The plot shows that if you were a biological male your chance/ probability to survived were less than 35% without matter your social class. 
+
+However, if you were a female from middle or upper class your chance to survived were the highest with nearly 22%, the minimum options to survived were  for female with relatives like siblings or spouse and they did not embarked in Southampton. In addition, female married or with child and embarked in Southampton had nearly 5% probability to drink a lot of water.
+
+A curious fact is that between the lower class to be married or had children increase your probability till 7.5%, does not important your place of embark 
+
+
+
+6.
+
+Predictions
+
+```{r}
+library(modelr)
+```
+
+
+```{r}
+titanic_test_pred <- titanic_test %>%
+  add_predictions(titanic_fit, type = 'class')
+
+
+titanic_test_pred
+```
+
+
+
+```{r}
+titanic_test_pred %>% 
+  count(survived_flag== pred)
+```
+According with the results , this predictive model has a positive result as probability - prediction of 82% (estimate). I feel that it is no the best model but it is good start. 
+
+
+```{r}
+titanic_test_pred %>% 
+  select(sex,class,port_embarkation,sib_sp,survived_flag)
+```
+Confusion matrix. Check my predictive performance
+
+
+
+```{r}
+library(yardstick)
+```
+
+```{r}
+conf_mat <-  titanic_test_pred %>% 
+  conf_mat(truth = survived_flag, estimate = pred)
+
+conf_mat
+```
+  # Calculate the accuracy
+  
+```{r}
+accuracy <- titanic_test_pred %>% 
+  accuracy(truth = survived_flag, estimate = pred)
+
+accuracy
+```
+  
+The confusion matrix and the accuracy have confirmed the idea showed above about the positive result of the prediction.
+
+# How sensitivity and specificity is the model?
+
+```{r}
+titanic_test_pred %>%
+  sensitivity(truth = survived_flag, estimate = pred)
+```
+```{r}
+titanic_test_pred %>%
+  specificity(truth = survived_flag, estimate = pred)
+```
+ I interpret that the high sensitivity en the estimation, near to 1, shows that it is a good model for true positive rate . However the specificity is close to 0.6 means that the true negatives ratio is still a bit high for a decision where someone will survive or not.
+ 
+ 
+ #ConfusionMatrix
+```{r}
+library(caret)
+```
+ 
+```{r}
+confusionMatrix(titanic_test_pred$pred,titanic_test_pred$survived_flag )
+```
+As i said before, I feel that this is a good decision tree with a good prediction, accuracy and sensitive(true positives) but I feel a bit uncomfortable with the specificity that is not as high as other marks.
+
+
+
+
+
+
