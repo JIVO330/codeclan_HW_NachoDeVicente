@@ -1,0 +1,180 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+Homework
+
+```{r}
+library(tidyverse)
+library(janitor)
+
+
+
+
+```
+
+
+
+```{r}
+marketing <-  read_csv('data/mall_customers.csv') %>% clean_names()
+marketing
+```
+
+Marketing  : spending_score and annual_income
+
+
+```{r}
+marketing_subset <- marketing %>% 
+  select(c(spending_score_1_100,annual_income_k))
+```
+# Starting Point
+
+```{r}
+ggplot(marketing_subset, aes(x = annual_income_k , y = spending_score_1_100))+
+  geom_point()
+```
+From the graph the first impression is that there are 5 groups.
+There is a small group of customers with low income but high spending_score;there is another with low -medium income and low-medium spending_score.
+The third group and, perhaps the most interesting,there is a group of customers with medium income  ( around 50 k per year) and medium spending_score and very concentrate from the others 4 groups.
+The last two groups are these customers with high income, one with also a high spending_score and another low spending income.
+These last three groups could be the targeting. 
+ 
+ 
+Scale the data
+
+```{r}
+marketing_scaled <- marketing_subset %>% 
+  mutate(across(everything(), scale))
+```
+
+Making a cluster
+```{r}
+# we run 5 cluster for 5 groups
+marketing_cluster5 <- kmeans(marketing_scaled,
+                             center = 5,
+                             nstart = 25)
+```
+
+
+
+```{r}
+library(broom)
+```
+
+```{r}
+tidy(marketing_cluster5)
+```
+```{r}
+augment(marketing_cluster5, marketing_scaled)
+```
+```{r}
+ glance(marketing_cluster5)
+```
+
+
+
+
+
+k value
+marketing5
+
+
+```{r}
+k_clusters5 <-  tibble(k =1:40) %>% 
+  mutate(
+    kclust = map(k, ~ kmeans(x = marketing_scaled, centers = .x, nstart = 25)),
+    tidied = map (kclust, tidy),
+    glanced = map(kclust, glance),
+    augmented = map(kclust, ~augment(.x, marketing_scaled))
+  )
+
+```
+
+```{r}
+library(factoextra)
+```
+
+Personally, I feel the silhouette coefficient method  is the most visible, I run two methods : Silhouette and Elbow
+
+```{r}
+fviz_nbclust(marketing_scaled,
+             kmeans,
+             method = 'silhouette',
+             nstart = 25)
+```
+
+```{r}
+fviz_nbclust(marketing_scaled,
+             kmeans,
+             method = 'wss',
+             nstart = 25)
+```
+As I said above, from the plot I thought there were 5 groups, the silhouette method marks  that there are 5 clusters, so I believe that the clustering fit for the data. Personally, I feel that the second plot with the Elbow method is unclear to do a confirmation because the cluster looks is marked k = 3/4. I will run a third plot/method to be more sure.
+
+```{r}
+fviz_nbclust(marketing_scaled,
+             kmeans,
+             method = 'gap',
+             nstart = 25)
+
+```
+According with the GAP Statistic method, the optimal cluster is 1!.
+
+#Run few plots with different k values 5,3.
+
+
+```{r}
+k_clusters5 %>% unnest(augmented) %>% # explore column
+  filter(k == 5) %>%   # filter for optimal k
+ggplot()+
+  aes(x = annual_income_k, y = spending_score_1_100,
+      colour = .cluster)+
+  geom_point()
+```
+This plot is like a repetition of the first plot with colours
+
+```{r}
+k_clusters5 %>% 
+  unnest(augmented) %>% 
+  filter(k ==5) %>% 
+  group_by(.cluster) %>% 
+  summarise(
+    mean(annual_income_k),
+    mean(spending_score_1_100),
+    #sd(annual_income_k),
+   # sd(spending_score_1_100)
+  )
+```
+The visualization and the average score marks that there is a group with positive annual income but negative spending_score, that could be the targeting group. There is another group with positive annual income but its spending_score is , also, positive . In my opinion that means that they can no expend more moneyin our products.
+
+
+```{r}
+k_clusters5 %>% unnest(augmented) %>% # explore column
+  filter(k == 3) %>%   # filter for optimal k
+ggplot()+
+  aes(x = annual_income_k, y = spending_score_1_100,
+      colour = .cluster)+
+  geom_point()
+```
+This second plot is interesting because adds three 'points' of the medium to the high annual income and lower spending_score.Also, the medium group of medium income and spending is add to the group of lower income  and low or high spending_score. Leaving the 'green' cluster : high annual income and low spending_score  like the targeting group.
+
+
+```{r}
+k_clusters5 %>% 
+  unnest(augmented) %>% 
+  filter(k ==3) %>% 
+  group_by(.cluster) %>% 
+  summarise(
+    mean(annual_income_k),
+    mean(spending_score_1_100),
+    #sd(annual_income_k),
+    #sd(spending_score_1_100)
+  )
+```
+
+
+
+
+
+
+
