@@ -1,0 +1,82 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+          
+MVP
+
+
+
+```{r}
+library(tidyverse)
+library(tidytext)
+library(ggwordcloud)
+library(janeaustenr)
+
+```
+
+Find the most common words in both Pride & Prejudice and Sense & Sensibility.
+
+
+```{r}
+glimpse(austen_books())
+```
+
+```{r}
+total_lines <- austen_books() %>%
+  filter(book == c ("Pride & Prejudice","Sense & Sensibility")) %>% 
+  summarise(total_lines = n())
+
+
+total_lines
+```
+Answer.
+
+```{r}
+pride_sense <- austen_books() %>%
+  filter(book == c ("Pride & Prejudice","Sense & Sensibility")) %>% 
+   unnest_tokens(word,text) %>% 
+    count(word,sort = TRUE)
+
+pride_sense
+#   The most common word is 'to','the','and'
+```
+
+Find the most common words in both Pride & Prejudice and Sense & Sensibility, not including stop words.
+
+Answer.
+```{r}
+pride_sense_witout <- austen_books() %>%
+  filter(book == c ("Pride & Prejudice","Sense & Sensibility")) %>% 
+   unnest_tokens(word,text) %>%
+    anti_join(stop_words) %>%
+     count(word,sort = TRUE)
+
+pride_sense_witout
+#The most common word is 'elinor','elizabeth'
+```
+
+Find the most common sentiment words in both Pride & Prejudice and Sense & Sensibility.
+
+Answer.
+
+```{r}
+pride_sense_sentiment <- austen_books() %>%
+  filter(book == c ("Pride & Prejudice","Sense & Sensibility")) %>% 
+   unnest_tokens(word,text) %>%
+    group_by(word) %>% 
+     inner_join(get_sentiments('bing')) %>% 
+      count(word, sort = TRUE)
+  
+
+pride_sense_sentiment
+```
+
+
+
+
+
+
+
+

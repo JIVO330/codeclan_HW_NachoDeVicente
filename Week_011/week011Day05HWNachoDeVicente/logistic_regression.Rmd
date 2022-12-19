@@ -1,0 +1,334 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+Logic Regression Homework
+
+Predictive classifier. Customer buy CH or MN. train-test splitting or Cross-validation.
+ - manual or glmulti()
+ - mutate purchase to purchase_mm
+ - mutate factor
+ - weekofpurchase?
+ - aliases?
+ - Highest AUC
+
+
+categorical? store7,special_ ,purchase
+```{r}
+library(tidyverse)
+library(janitor)
+library(GGally)
+library(modelr)
+```
+
+```{r}
+orange_juice <- read_csv('data/orange_juice.csv') %>% clean_names()
+
+glimpse(orange_juice)
+```
+
+```{r}
+#Check for NAs
+summary(orange_juice)
+```
+
+Can I delete any variable/ column?
+'store_id' , 'weekofpurchase', ' store7' = only value if the question were  relate with purchase by location or time -year. So delete the three of them.
+
+```{r}
+orange_juice <- orange_juice %>% 
+  select(-c(2,3,14,18))
+```
+
+Mutate 
+
+
+```{r}
+orange_juice <- orange_juice %>% 
+  mutate_if(is_character, as_factor) %>%
+  mutate(purchase_mm = as_factor(if_else(purchase == 'CH', "Yes", "No")))
+```
+
+```{r}
+view(orange_juice)
+```
+
+Which juice = Dependent variable: purchase_mm 
+
+aliases/ dependencies?
+
+```{r}
+
+alias(purchase_mm ~ ., data = orange_juice)
+```
+Result. aliases = sale_price_mm,sale_price_ch,price_diff,list_price_diff
+
+
+
+```{r}
+orange_juice <- orange_juice %>% 
+  select(-c(9,10,11,14))
+```
+
+```{r}
+view(orange_juice)
+```
+
+
+Relations with purchase_mm.
+There are 10 variables too much for ggpairs. Divided in 2 groups of 5
+
+```{r}
+div1 <- orange_juice %>% 
+  select(price_ch,price_mm,disc_ch,disc_mm,purchase_mm)
+
+
+div2 <- orange_juice %>% 
+   select(special_ch,special_mm,loyal_ch,pct_disc_mm,pct_disc_ch,purchase_mm)
+
+```
+
+
+```{r, message=FALSE}
+div1 %>% 
+  ggpairs()
+```
+I interpret a relation  between purchase_mm and disc_mm
+
+
+```{r, message=FALSE}
+div2 %>% 
+  ggpairs()
+```
+
+I interpret a relation  between purchase_mm and loyal_ch
+
+
+
+Logistic Regression predictions according which I interpreted from each model. With one predictor
+
+```{r}
+
+model1_pred <- glm(purchase_mm ~ disc_mm, data = orange_juice,family = binomial(link = 'logit')) 
+
+model1_pred
+```
+
+
+```{r}
+model2_pred <- glm(purchase_mm ~ loyal_ch, data = orange_juice,family = binomial(link = 'logit'))
+
+model2_pred
+```
+
+An extra model prediction with all variables/ predictors
+
+```{r}
+model3_pred <-glm(purchase_mm ~.,data = orange_juice,family = binomial(link = 'logit'))
+
+model3_pred
+```
+
+From these models predictions the lowest AIC ( and best) is with all the variables.
+
+However I will plot the first model
+
+```{r}
+predict_mod1_log <- tibble(disc_mm = seq(0, 0.80,1)) %>% 
+  add_predictions(model1_pred, type = 'response')
+
+
+ggplot(orange_juice) +
+  geom_jitter(aes(x = disc_mm, y = as.integer(purchase_mm)), shape = 1, 
+              position = position_jitter(h = 0.03)) + 
+   geom_line(data = predict_mod1_log, aes(x = disc_mm , y = pred), col = 'red') + 
+  ylab("Probability")
+```
+
+No enough data for do a logic regression. I understand that my first model from previous interpretation is incorrect or invalid.
+
+```{r}
+library(broom)
+```
+
+model1 - one predictor
+
+
+```{r}
+b_disc_mm <- tidy(model1_pred) %>% 
+  filter(term == 'disc_mm') %>% 
+  select(estimate)
+b_disc_mm
+```
+
+```{r}
+clean_names(tidy(model1_pred))
+```
+
+model2  - one predictor
+
+```{r}
+clean_names(tidy(model2_pred))
+```
+
+model3 - all predictor
+```{r}
+clean_names(tidy(model3_pred))
+```
+
+Except in model3, the p-value in the others three models are under 0.05. Therefore, I interpret that all the models are correct even if the plot of model1 and the lower aic from model3 suggest the opposit.
+
+```{r}
+clean_names(glance(model1_pred))
+```
+```{r}
+clean_names(glance(model2_pred))
+```
+```{r}
+clean_names(glance(model3_pred))
+```
+
+
+
+ROC/AUC
+
+```{r}
+library(pROC)
+```
+
+```{r}
+orange_juice_mod1 <- orange_juice %>% 
+  add_predictions(model1_pred, type = 'response')
+
+
+orange_juice_mod2 <- orange_juice %>% 
+  add_predictions(model2_pred, type = 'response')
+
+
+orange_juice_mod3 <-orange_juice %>% 
+  add_predictions(model3_pred, type = 'response')
+
+```
+
+
+```{r}
+roc_orange_juice_mod1 <- orange_juice_mod1 %>% 
+  roc(response = purchase_mm, predictor = pred)
+```
+
+```{r}
+roc_orange_juice_mod2 <- orange_juice_mod2 %>% 
+  roc(response = purchase_mm, predictor = pred)
+```
+
+
+```{r}
+roc_orange_juice_mod3 <- orange_juice_mod3 %>% 
+  roc(response = purchase_mm, predictor = pred)
+```
+
+
+
+```{r}
+roc_curve <- ggroc(
+  data = list(
+    mod1 = roc_orange_juice_mod1, 
+    mod2 = roc_orange_juice_mod2,
+    mod3 = roc_orange_juice_mod3
+  ), 
+  legacy.axes = TRUE) +
+  coord_fixed()
+
+roc_curve
+```
+
+The ROC plot shows that the best model is model 3, doing with all the variables/ predictors after cleaning/ eliminate some variables. But is not a curve, it is completely straight so I feel it should not be a better model. The second best model , that shows a curve is model2 (with loyal_ch), maybe the most realistic. The worst prediction is model1 (disc_mm) that is close to a straight line.
+
+AUC values
+
+```{r}
+auc(roc_orange_juice_mod1)
+```
+
+
+```{r}
+auc(roc_orange_juice_mod2)
+```
+
+```{r}
+auc(roc_orange_juice_mod3)
+```
+
+
+Cross-validation
+```{r}
+library(caret)
+```
+
+
+```{r}
+train_control <- trainControl(method = "repeatedcv", 
+                              number = 8,
+                              repeats = 100,
+                              savePredictions = TRUE, 
+                              classProbs = TRUE, 
+                              summaryFunction = twoClassSummary)
+```
+
+
+
+```{r}
+  model1_pred_cross_val<- train(model1_pred$formula,
+                                dat = orange_juice,trControl = train_control,
+                                method = 'glm',
+                                family = binomial(link =  'logit'))
+```
+
+```{r}
+  model2_pred_cross_val<- train(model2_pred$formula,
+                                dat = orange_juice,trControl = train_control,
+                                method = 'glm',
+                                family = binomial(link =  'logit'))
+```
+
+
+
+
+```{r}
+  model3_pred_cross_val<- train(model3_pred$formula,
+                                dat = orange_juice,trControl = train_control,
+                                method = 'glm',
+                                family = binomial(link =  'logit'))
+```
+
+
+```{r}
+  model1_pred_cross_val$results
+```
+
+
+
+
+```{r}
+  model2_pred_cross_val$results
+```
+
+
+```{r}
+  model3_pred_cross_val$results
+```
+
+
+
+Answer. The highest AUC/ROC is 1 that is the model with alll the variables/ predictor except that ones remove during data -cleaning and after apply aliases. the second best model / predictor  is model2 with 'loyal_ch'. 
+
+
+
+
+
+
+
+
+
+
+
